@@ -1,4 +1,6 @@
-// --- Smooth scroll ---
+// ===============================
+// Smooth scroll do formularza
+// ===============================
 function scrollToForm() {
   const target = document.getElementById('kontakt');
   const startPosition = window.pageYOffset;
@@ -24,16 +26,16 @@ function scrollToForm() {
 // ===============================
 // Supabase Config
 // ===============================
-const SUPABASE_URL = "https://supabase.com/dashboard/project/vnwljzkrvwjrhgupomqy/settings/api-keys";
-const SUPABASE_KEY = "sb_publishable_UEnhybLATVgudhPkTsM6rg__la-POo7";
+const SUPABASE_URL = "https://vnwljzkrvwjrhgupomqy.supabase.co"; // Twój Supabase URL
+const SUPABASE_KEY = "sb_publishable_UEnhybLATVgudhPkTsM6rg__la-POo7"; // Twój anon public key
 let sessionToken = null; // Discord ID użytkownika
 
 // ===============================
 // Discord OAuth login
 // ===============================
 function loginDiscord() {
-  const clientId = '1484143164251045928';
-  const redirectUri = encodeURIComponent('https://twoja-strona.github.io/oauth-callback.html');
+  const clientId = '1484143164251045928'; // Twój prawdziwy Client ID
+  const redirectUri = encodeURIComponent('https://sneq77.github.io/edonos/'); // taki sam w Discord Developer Portal
   const scope = 'identify';
   const url = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
   window.location.href = url;
@@ -47,14 +49,29 @@ async function handleDiscordCallback() {
   const code = params.get('code');
   if (!code) return;
 
-  // Wywołanie Supabase Edge Function, która wymienia code na token i zwraca Discord ID
   try {
+    // Wywołanie Supabase Edge Function, która wymienia code na token i zwraca Discord ID
     const res = await fetch(`https://twoja-funkcja.supabase.co/discord-oauth?code=${code}`);
     const data = await res.json();
-    sessionToken = data.discord_id; // Discord ID użytkownika
-    document.getElementById('login-section').style.display = 'none';
-    document.getElementById('kontakt').style.display = 'block';
-    loadReports(); // wczytanie zgłoszeń użytkownika
+    sessionToken = data.discord_id;
+
+    // Zmień przycisk w hero na "Zgłoś sprawę"
+    const heroBtn = document.getElementById('heroButton');
+    if (heroBtn) {
+      heroBtn.innerText = "Zgłoś sprawę";
+      heroBtn.onclick = scrollToForm;
+    }
+
+    // Ukryj przycisk logowania
+    const loginSection = document.getElementById('login-section');
+    if (loginSection) loginSection.style.display = 'none';
+
+    // Pokaż formularz kontaktowy
+    const kontakt = document.getElementById('kontakt');
+    if (kontakt) kontakt.style.display = 'block';
+
+    // Wczytaj zgłoszenia użytkownika
+    loadReports();
   } catch (err) {
     console.error('Błąd podczas logowania Discord:', err);
   }
@@ -137,6 +154,7 @@ async function loadReports() {
   });
   const reports = await res.json();
   const reportsDiv = document.getElementById('reports');
+  if (!reportsDiv) return;
   reportsDiv.innerHTML = reports.map(r => `<div onclick="loadChat('${r.id}')">${r.title}</div>`).join('');
 }
 
@@ -144,6 +162,7 @@ async function loadReports() {
 // Chat / odpowiedzi powiązane z ID
 // ===============================
 let currentReportId = null;
+
 async function loadChat(reportId) {
   currentReportId = reportId;
   const res = await fetch(`${SUPABASE_URL}/rest/v1/messages?report_id=eq.${reportId}`, {
@@ -153,7 +172,9 @@ async function loadChat(reportId) {
     }
   });
   const messages = await res.json();
-  document.getElementById('chat').innerHTML = messages.map(m => `<div><b>${m.sender}:</b> ${m.content}</div>`).join('');
+  const chatDiv = document.getElementById('chat');
+  if (!chatDiv) return;
+  chatDiv.innerHTML = messages.map(m => `<div><b>${m.sender}:</b> ${m.content}</div>`).join('');
 }
 
 async function sendReply() {
@@ -194,61 +215,8 @@ window.addEventListener('scroll', () => {
 });
 
 // ===============================
-// Wywołanie po załadowaniu strony
+// Uruchom callback po załadowaniu strony
 // ===============================
 window.onload = function() {
   handleDiscordCallback();
 };
-// Po powrocie z Discord OAuth
-async function handleDiscordCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (!code) return;
-
-  try {
-    // Wywołanie Supabase Edge Function, która wymienia code na token i zwraca Discord ID
-    const res = await fetch(`https://twoja-funkcja.supabase.co/discord-oauth?code=${code}`);
-    const data = await res.json();
-    sessionToken = data.discord_id; // Discord ID użytkownika
-
-    // Ukrycie przycisku logowania
-    document.getElementById('login-section').style.display = 'none';
-    
-    // Pokaż przycisk "Zgłoś sprawę" w hero
-    const zglośBtn = document.getElementById('zglos');
-    if (zglośBtn) zglośBtn.style.display = 'inline-block';
-
-    // Pokaż formularz kontaktowy
-    document.getElementById('kontakt').style.display = 'block';
-    
-    // Wczytaj zgłoszenia użytkownika
-    loadReports();
-  } catch (err) {
-    console.error('Błąd podczas logowania Discord:', err);
-  }
-}
-
-async function handleDiscordCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (!code) return;
-
-  try {
-    const res = await fetch(`https://twoja-funkcja.supabase.co/discord-oauth?code=${code}`);
-    const data = await res.json();
-    sessionToken = data.discord_id; // Discord ID użytkownika
-
-    // Zmień przycisk w hero na "Zgłoś sprawę"
-    const heroBtn = document.getElementById('heroButton');
-    if (heroBtn) {
-      heroBtn.innerText = "Zgłoś sprawę";
-      heroBtn.onclick = scrollToForm;
-    }
-
-    // Pokaż formularz kontaktowy
-    document.getElementById('kontakt').style.display = 'block';
-    loadReports(); // wczytanie zgłoszeń użytkownika
-  } catch (err) {
-    console.error('Błąd podczas logowania Discord:', err);
-  }
-}
