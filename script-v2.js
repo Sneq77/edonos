@@ -34,11 +34,12 @@ let sessionToken = null; // Discord ID użytkownika
 // Discord OAuth login
 // ===============================
 function loginDiscord() {
- const clientId = "1484143164251045928"; // prawdziwy Client ID
-const redirectUri = encodeURIComponent("https://sneq77.github.io/edonos/"); // dokładnie taki w Discord
-const scope = "identify";
-const url = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
-window.location.href = url;
+    const clientId = "1484143164251045928"; // Twój Client ID
+    const redirectUri = encodeURIComponent("https://sneq77.github.io/edonos/"); 
+    const scope = "identify";
+    const url = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
+    window.location.href = url;
+}
 }
 
 // ===============================
