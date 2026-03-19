@@ -1,0 +1,193 @@
+.navbar a:hover {
+  color: gold;
+}
+
+.hero {
+  position: relative;
+  height: 80vh;
+  background: url(images/f736c07d-6921-4cd6-a28d-7d32d2b9f89f.png) center/cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+}
+
+.hero-content {
+  position: relative;
+  text-align: center;
+}
+
+.hero h2 {
+  font-size: 50px;
+  color: gold;
+}
+
+button {
+  background: gold;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: black;
+  font-weight: bold;
+}
+
+.program {
+  padding: 50px;
+  text-align: center;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #2c220f;
+  padding: 20px;
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #eee27b, #d3d625);
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+button {
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  background: #f1c40f; /* jaśniejszy złoty */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+body {
+  background: linear-gradient(to bottom, #121212, #1c1c1c);
+  margin-left: 20px;
+  font-family: Arial, sans-serif;
+  text-decoration: none;
+  color: white;
+}
+
+.program {
+  background: linear-gradient(120deg, #2c220f, #3b2f14);
+  padding: 50px;
+  border-radius: 12px;
+}
+
+form input,
+form textarea {
+  width: 80%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background: #1c1c1c;
+  color: white;
+}
+
+form input:focus,
+form textarea:focus {
+  outline: none;
+  border: 2px solid #f1c40f;
+  box-shadow: 0 0 10px rgba(241,196,15,0.5);
+}
+
+.shining-text {
+  font-size: 60px;
+  font-weight: bold;
+  color: #000;
+  position: relative;
+  display: inline-block;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: linear-gradient(120deg, #000 30%, #fff 50%, #000 70%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 2s infinite linear;
+}
+
+@keyframes shine {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+#kontakt {
+  color: white;
+}
+
+/* =====================
+   Dodatki UX dla chat
+===================== */
+#chatSection {
+  background: #2c2a20;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+#chat {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  border: 1px solid #555;
+  padding: 10px;
+  border-radius: 5px;
+  background: #1c1c1c;
+}
+
+#replyMessage {
+  width: 80%;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border: 1px solid #555;
+  background: #1c1c1c;
+  color: white;
+}
+
+#chatStatus {
+  margin-top: 5px;
+  color: #f1c40f;
+  font-weight: bold;
+}
+.hero-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.hero-content button {
+  padding: 15px 30px;
+  font-size: 20px;
+  background: gold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.2s ease;
+}
+.hero-content button:hover {
+  transform: scale(1.05);
+  background: #f1c40f;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}

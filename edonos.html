@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Donos | Bezpieczne Zgłoszenia</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <h1 class="shining-text">E-Donos</h1>
+  </nav>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="overlay"></div>
+  <div class="hero-content">
+    <h2></h2>
+    <!-- Przycisk, który będzie logowaniem lub "Zgłoś sprawę" -->
+    <button id="heroButton" onclick="loginDiscord()">Zaloguj się przez Discord</button>
+  </div>
+</section>
+
+  <!-- Program Section -->
+  <section id="program" class="program">
+    <h3>Nasze Założenia</h3>
+    <div class="cards">
+      <div class="card">Anonimowość</div>
+      <div class="card">Szybka reakcja</div>
+      <div class="card">Bezpieczeństwo</div>
+      <div class="card">Transparentność</div>
+      <div class="card">Dostępność</div>
+      <div class="card">Współpraca</div>
+    </div>
+  </section>
+
+  <!-- Form Section (ukryta przed zalogowaniem) -->
+  <section id="kontakt" class="form-section" style="display:none;">
+    <h3>Wyślij zgłoszenie</h3>
+    <form id="reportForm" onsubmit="submitForm(event)">
+      <input type="email" placeholder="Twój email (opcjonalnie)" name="email">
+      <input type="text" placeholder="Tytuł zgłoszenia" required name="title">
+      <textarea placeholder="Opisz sytuację..." required name="message"></textarea>
+      <button type="submit">Wyślij anonimowo</button>
+    </form>
+    <p id="status"></p>
+
+    <!-- Chat / odpowiedź -->
+    <div id="chatSection" style="display:none; margin-top:20px;">
+      <h4>Odpowiedz lub sprawdź status zgłoszenia</h4>
+      <input type="text" id="checkID" placeholder="Podaj ID zgłoszenia">
+      <textarea id="replyMessage" placeholder="Napisz odpowiedź..."></textarea>
+      <button onclick="sendReply()">Wyślij odpowiedź</button>
+      <p id="chatStatus"></p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 E-Donos</p>
+  </footer>
+
+  <script>
+    // ===============================
+    // Konfiguracja Supabase
+    // ===============================
+    const SUPABASE_URL = "TWOJA_SUPABASE_URL";
+    const SUPABASE_KEY = "TWÓJ_SUPABASE_ANON_KEY";
+    let sessionToken = null; // Discord ID użytkownika
+
+    // ===============================
+    // Funkcja logowania Discord
+    // ===============================
+    function loginDiscord() {
+      const clientId = "TWÓJ_CLIENT_ID";
+      const redirectUri = encodeURIComponent("https://twoja-strona.github.io/oauth-callback.html");
+      const scope = "identify";
+      const url = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
+      window.location.href = url;
+    }
+
+    // ===============================
+    // Po powrocie z Discord OAuth
+    // ===============================
+    function handleOAuthCallback() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+      if (token) {
+        sessionToken = token;
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("kontakt").style.display = "block";
+        loadReports(); // wczytanie zgłoszeń użytkownika
+      }
+    }
+
+    // ===============================
+    // Pomocnicza funkcja scroll
+    // ===============================
+    function scrollToForm() {
+      document.getElementById("kontakt").scrollIntoView({ behavior: "smooth" });
+    }
+
+    // ===============================
+    // Wywołanie po załadowaniu strony
+    // ===============================
+    window.onload = function() {
+      handleOAuthCallback();
+    };
+  </script>
+  
+  <script src="script.js"></script>
+</body>
+</html>
