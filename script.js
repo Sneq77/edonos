@@ -24,15 +24,15 @@ function scrollToForm() {
 // ===============================
 // Supabase Config
 // ===============================
-const SUPABASE_URL = "TWOJA_SUPABASE_URL";
-const SUPABASE_KEY = "TWÓJ_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://supabase.com/dashboard/project/vnwljzkrvwjrhgupomqy/settings/api-keys";
+const SUPABASE_KEY = "sb_publishable_UEnhybLATVgudhPkTsM6rg__la-POo7";
 let sessionToken = null; // Discord ID użytkownika
 
 // ===============================
 // Discord OAuth login
 // ===============================
 function loginDiscord() {
-  const clientId = 'TWÓJ_CLIENT_ID';
+  const clientId = '1484143164251045928';
   const redirectUri = encodeURIComponent('https://twoja-strona.github.io/oauth-callback.html');
   const scope = 'identify';
   const url = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
