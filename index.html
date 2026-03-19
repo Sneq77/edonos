@@ -66,18 +66,18 @@
     // ===============================
     // Konfiguracja Supabase
     // ===============================
-    const SUPABASE_URL = "TWOJA_SUPABASE_URL";
-    const SUPABASE_KEY = "TWÓJ_SUPABASE_ANON_KEY";
+    const SUPABASE_URL = "https://vnwljzkrvwjrhgupomqy.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_UEnhybLATVgudhPkTsM6rg__la-POo7";
     let sessionToken = null; // Discord ID użytkownika
 
     // ===============================
     // Funkcja logowania Discord
     // ===============================
     function loginDiscord() {
-      const clientId = "TWÓJ_CLIENT_ID";
+      const clientId = "1484143164251045928";
       const redirectUri = encodeURIComponent("https://twoja-strona.github.io/oauth-callback.html");
       const scope = "identify";
-      const url = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
+      const url = `https://discord.com/oauth2/authorize?client_id=1484143164251045928&response_type=token&redirect_uri=https%3A%2F%2Fsneq77.github.io%2Fedonos%2F&scope=identify`;
       window.location.href = url;
     }
 
