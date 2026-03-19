@@ -31,51 +31,54 @@ const SUPABASE_KEY = "sb_publishable_UEnhybLATVgudhPkTsM6rg__la-POo7"; // Twój 
 let sessionToken = null; // Discord ID użytkownika
 
 // ===============================
-// Discord OAuth login
+// Discord OAuth login (Implicit Grant)
 // ===============================
 function loginDiscord() {
-    const clientId = "1484143164251045928"; // Twój Client ID
-    const redirectUri = encodeURIComponent("https://sneq77.github.io/edonos/"); 
-    const scope = "identify";
-    const url = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
-    window.location.href = url;
-}
+  const clientId = "1484143164251045928"; // Twój Client ID
+  const redirectUri = encodeURIComponent("https://sneq77.github.io/edonos/"); 
+  const scope = "identify";
+  const url = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
+  window.location.href = url;
 }
 
 // ===============================
-// Obsługa callback po OAuth
+// Obsługa callback po OAuth (Implicit Grant)
 // ===============================
-async function handleDiscordCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if (!code) return;
+function handleDiscordToken() {
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  const token = params.get('access_token');
 
-  try {
-    // Wywołanie Supabase Edge Function, która wymienia code na token i zwraca Discord ID
-    const res = await fetch(`https://twoja-funkcja.supabase.co/discord-oauth?code=${code}`);
-    const data = await res.json();
-    sessionToken = data.discord_id;
+  if (!token) return;
 
-    // Zmień przycisk w hero na "Zgłoś sprawę"
-    const heroBtn = document.getElementById('heroButton');
-    if (heroBtn) {
-      heroBtn.innerText = "Zgłoś sprawę";
-      heroBtn.onclick = scrollToForm;
-    }
+  // Pobierz dane użytkownika z Discord
+  fetch('https://discord.com/api/users/@me', {
+      headers: { Authorization: `Bearer ${token}` }
+  })
+  .then(res => res.json())
+  .then(user => {
+      console.log("Zalogowany użytkownik Discord:", user);
+      sessionToken = user.id; // użyj ID Discord jako sessionToken
 
-    // Ukryj przycisk logowania
-    const loginSection = document.getElementById('login-section');
-    if (loginSection) loginSection.style.display = 'none';
+      // Zmień przycisk w hero na "Zgłoś sprawę"
+      const heroBtn = document.getElementById('heroButton');
+      if (heroBtn) {
+        heroBtn.innerText = "Zgłoś sprawę";
+        heroBtn.onclick = scrollToForm;
+      }
 
-    // Pokaż formularz kontaktowy
-    const kontakt = document.getElementById('kontakt');
-    if (kontakt) kontakt.style.display = 'block';
+      // Ukryj przycisk logowania
+      const loginSection = document.getElementById('login-section');
+      if (loginSection) loginSection.style.display = 'none';
 
-    // Wczytaj zgłoszenia użytkownika
-    loadReports();
-  } catch (err) {
-    console.error('Błąd podczas logowania Discord:', err);
-  }
+      // Pokaż formularz kontaktowy
+      const kontakt = document.getElementById('kontakt');
+      if (kontakt) kontakt.style.display = 'block';
+
+      // Wczytaj zgłoszenia użytkownika
+      loadReports();
+  })
+  .catch(err => console.error('Błąd pobierania danych Discord:', err));
 }
 
 // ===============================
@@ -218,20 +221,4 @@ window.addEventListener('scroll', () => {
 // ===============================
 // Uruchom callback po załadowaniu strony
 // ===============================
-window.onload = function() {
-  handleDiscordCallback();
-};
-window.addEventListener('load', () => {
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
-    const token = params.get('access_token');
-    if (token) {
-        console.log("Discord token:", token);
-        // Tutaj możesz np. pobrać dane użytkownika
-        fetch('https://discord.com/api/users/@me', {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(res => res.json())
-        .then(user => console.log(user));
-    }
-});
+window.addEventListener('load', handleDiscordToken);
