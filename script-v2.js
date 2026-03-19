@@ -37,7 +37,7 @@ function loginDiscord() {
   const clientId = "1484143164251045928"; // Twój Client ID
   const redirectUri = encodeURIComponent("https://sneq77.github.io/edonos/"); 
   const scope = "identify";
-  const url = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}`;
+  const url = `https://discord.com/oauth2/authorize?client_id=1484143164251045928&response_type=token&redirect_uri=https%3A%2F%2Fsneq77.github.io%2Fedonos%2F&scope=identify`;
   window.location.href = url;
 }
 
