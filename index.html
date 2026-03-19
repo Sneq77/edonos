@@ -13,26 +13,12 @@
     <h1 class="shining-text">E-Donos</h1>
   </nav>
 
-<!-- Hero Section -->
-<section class="hero">
-  <div class="overlay"></div>
-  <div class="hero-content">
-    <h2></h2>
-    <!-- Przycisk, który będzie logowaniem lub "Zgłoś sprawę" -->
-    <button id="heroButton" onclick="loginDiscord()">Zaloguj się przez Discord</button>
-  </div>
-</section>
-
-  <!-- Program Section -->
-  <section id="program" class="program">
-    <h3>Nasze Założenia</h3>
-    <div class="cards">
-      <div class="card">Anonimowość</div>
-      <div class="card">Szybka reakcja</div>
-      <div class="card">Bezpieczeństwo</div>
-      <div class="card">Transparentność</div>
-      <div class="card">Dostępność</div>
-      <div class="card">Współpraca</div>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="overlay"></div>
+    <div class="hero-content">
+      <h2>Bezpieczne i anonimowe zgłoszenia</h2>
+      <button id="heroButton" onclick="loginDiscord()">Zaloguj się przez Discord</button>
     </div>
   </section>
 
@@ -47,13 +33,13 @@
     </form>
     <p id="status"></p>
 
-    <!-- Chat / odpowiedź -->
     <div id="chatSection" style="display:none; margin-top:20px;">
-      <h4>Odpowiedz lub sprawdź status zgłoszenia</h4>
-      <input type="text" id="checkID" placeholder="Podaj ID zgłoszenia">
+      <h4>Odpowiedź lub sprawdź status zgłoszenia</h4>
+      <div id="reports"></div>
       <textarea id="replyMessage" placeholder="Napisz odpowiedź..."></textarea>
       <button onclick="sendReply()">Wyślij odpowiedź</button>
       <p id="chatStatus"></p>
+      <div id="chat"></div>
     </div>
   </section>
 
@@ -64,52 +50,157 @@
 
   <script>
     // ===============================
-    // Konfiguracja Supabase
+    // Supabase Config
     // ===============================
     const SUPABASE_URL = "https://vnwljzkrvwjrhgupomqy.supabase.co";
     const SUPABASE_KEY = "sb_publishable_UEnhybLATVgudhPkTsM6rg__la-POo7";
-    let sessionToken = null; // Discord ID użytkownika
+    let sessionToken = null;
 
     // ===============================
-    // Funkcja logowania Discord
-    // ===============================
-    function loginDiscord() {
-      const clientId = "1484143164251045928";
-      const redirectUri = encodeURIComponent("https://twoja-strona.github.io/oauth-callback.html");
-      const scope = "identify";
-      const url = `https://discord.com/oauth2/authorize?client_id=1484143164251045928&response_type=token&redirect_uri=https%3A%2F%2Fsneq77.github.io%2Fedonos%2F&scope=identify`;
-      window.location.href = url;
-    }
-
-    // ===============================
-    // Po powrocie z Discord OAuth
-    // ===============================
-    function handleOAuthCallback() {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
-      if (token) {
-        sessionToken = token;
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("kontakt").style.display = "block";
-        loadReports(); // wczytanie zgłoszeń użytkownika
-      }
-    }
-
-    // ===============================
-    // Pomocnicza funkcja scroll
+    // Smooth scroll
     // ===============================
     function scrollToForm() {
       document.getElementById("kontakt").scrollIntoView({ behavior: "smooth" });
     }
 
     // ===============================
-    // Wywołanie po załadowaniu strony
+    // Discord OAuth login (Implicit Grant)
     // ===============================
-    window.onload = function() {
-      handleOAuthCallback();
-    };
+    function loginDiscord() {
+      const clientId = "1484143164251045928"; // Discord Client ID
+      const redirectUri = encodeURIComponent("https://sneq77.github.io/edonos/");
+      const scope = "identify";
+      const url = `https://discord.com/oauth2/authorize?client_id=1484143164251045928&response_type=code&redirect_uri=https%3A%2F%2Fsneq77.github.io%2Fedonos%2F&scope=identify`;
+      window.location.href = url;
+    }
+
+    // ===============================
+    // Obsługa tokena po powrocie z Discord
+    // ===============================
+    function handleDiscordToken() {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const token = params.get('access_token');
+      if (!token) return;
+
+      fetch('https://discord.com/api/users/@me', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(user => {
+        console.log("Zalogowany użytkownik Discord:", user);
+        sessionToken = user.id;
+
+        const heroBtn = document.getElementById('heroButton');
+        heroBtn.innerText = "Zgłoś sprawę";
+        heroBtn.onclick = scrollToForm;
+
+        document.getElementById('kontakt').style.display = 'block';
+      })
+      .catch(err => console.error("Błąd pobierania danych Discord:", err));
+    }
+
+    // ===============================
+    // Generowanie ID zgłoszenia
+    // ===============================
+    function generateID(length = 8) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let id = '';
+      for (let i = 0; i < length; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
+      return id;
+    }
+
+    // ===============================
+    // Wysyłka zgłoszenia do Supabase
+    // ===============================
+    async function submitForm(e) {
+      e.preventDefault();
+      const form = document.getElementById('reportForm');
+      const title = form.title.value;
+      const message = form.message.value;
+      const email = form.email.value || null;
+
+      if (!sessionToken) return alert('Zaloguj się przez Discord!');
+
+      const reportRes = await fetch(`${SUPABASE_URL}/rest/v1/reports`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({ user_id: sessionToken, title })
+      });
+      const reportData = await reportRes.json();
+      const createdReportID = reportData[0].id;
+
+      await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ report_id: createdReportID, sender: 'user', content: message })
+      });
+
+      document.getElementById('status').innerText = `Zgłoszenie wysłane! Twój ID: ${generateID()}`;
+      document.getElementById('chatSection').style.display = 'block';
+      form.reset();
+      loadReports();
+    }
+
+    // ===============================
+    // Wczytanie zgłoszeń użytkownika
+    // ===============================
+    async function loadReports() {
+      if (!sessionToken) return;
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/reports?user_id=eq.${sessionToken}`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+      const reports = await res.json();
+      const reportsDiv = document.getElementById('reports');
+      reportsDiv.innerHTML = reports.map(r => `<div onclick="loadChat('${r.id}')">${r.title}</div>`).join('');
+    }
+
+    let currentReportId = null;
+    async function loadChat(reportId) {
+      currentReportId = reportId;
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/messages?report_id=eq.${reportId}`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+      const messages = await res.json();
+      const chatDiv = document.getElementById('chat');
+      chatDiv.innerHTML = messages.map(m => `<div><b>${m.sender}:</b> ${m.content}</div>`).join('');
+    }
+
+    async function sendReply() {
+      const replyMessage = document.getElementById('replyMessage').value;
+      if (!currentReportId || !replyMessage) {
+        document.getElementById('chatStatus').innerText = 'Wybierz zgłoszenie i wpisz wiadomość!';
+        return;
+      }
+
+      await fetch(`${SUPABASE_URL}/rest/v1/messages`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ report_id: currentReportId, sender: 'user', content: replyMessage })
+      });
+
+      document.getElementById('chatStatus').innerText = 'Odpowiedź wysłana!';
+      document.getElementById('replyMessage').value = '';
+      loadChat(currentReportId);
+    }
+
+    // ===============================
+    // Inicjalizacja
+    // ===============================
+    window.addEventListener('load', handleDiscordToken);
   </script>
-  
-  <script src="script-v2.js"></script>
 </body>
 </html>
