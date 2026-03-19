@@ -221,3 +221,17 @@ window.addEventListener('scroll', () => {
 window.onload = function() {
   handleDiscordCallback();
 };
+window.addEventListener('load', () => {
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const token = params.get('access_token');
+    if (token) {
+        console.log("Discord token:", token);
+        // Tutaj możesz np. pobrać dane użytkownika
+        fetch('https://discord.com/api/users/@me', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(user => console.log(user));
+    }
+});
